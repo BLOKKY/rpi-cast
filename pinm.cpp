@@ -108,7 +108,7 @@ void clear(){
 //연결 되었는지 안되었는지 출력
 void printStandBy(bool connected){
 	clear();
-	writeMessage("PiNM", 2);
+	writeMessage("pinm", 2);
 	char buffer[100];
 	FILE* pipe;
 	pipe = popen("sh /home/pi/scripts/ip.sh eth", "r");

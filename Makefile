@@ -1,2 +1,2 @@
 all:
-	g++ -o pcast pcast.cpp -fpermissive
+	g++ -o pinm pinm.cpp -fpermissive

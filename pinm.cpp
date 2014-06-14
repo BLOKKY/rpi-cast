@@ -108,7 +108,7 @@ void clear(){
 //연결 되었는지 안되었는지 출력
 void printStandBy(bool connected){
 	clear();
-	writeMessage("pcast", 2);
+	writeMessage("PiNM", 2);
 	char buffer[100];
 	FILE* pipe;
 	pipe = popen("sh /home/pi/scripts/ip.sh eth", "r");
@@ -137,43 +137,43 @@ void printDownloading(){
 int server_sockfd, client_sockfd;
 
 void endHandler(int signo){
-	cons_log("[PCast:endHandler] SIGTERM/SIGINT 처리기");
+	cons_log("[PiNM:endHandler] SIGTERM/SIGINT 처리기");
 	if(client_sockfd != NULL){
 		close(client_sockfd);
-		cons_log("[PCast:endHandler] 클라이언트 연결 종료됨.");
+		cons_log("[PiNM:endHandler] 클라이언트 연결 종료됨.");
 	}else
-		cons_log("[PCast:endHandler] 클라이언트 연결되지 않음.");
+		cons_log("[PiNM:endHandler] 클라이언트 연결되지 않음.");
 	if(server_sockfd != NULL){
 		close(server_sockfd);
-		cons_log("[PCast:endHandler] 서버 연결 종료됨.");
+		cons_log("[PiNM:endHandler] 서버 연결 종료됨.");
 	}else
-		cons_log("[PCast:endHandler] 서버 없음.");
-	cons_log("[PCast:endHandler] PCast 종료");
+		cons_log("[PiNM:endHandler] 서버 없음.");
+	cons_log("[PiNM:endHandler] PiNM 종료");
 	exit(0);
 }
 
 void sockEndHandler(int signo){
-	cons_log("[PCast:sockEndHandler] SIGPIPE 처리기");
+	cons_log("[PiNM:sockEndHandler] SIGPIPE 처리기");
 	if(client_sockfd != NULL){
 		close(client_sockfd);
-		cons_log("[PCast:sockEndHandler] 연결 종료됨.");
+		cons_log("[PiNM:sockEndHandler] 연결 종료됨.");
 	}else
-		cons_log("[PCast:sockEndHandler] 연결되지 않음");
+		cons_log("[PiNM:sockEndHandler] 연결되지 않음");
 }
 
 bool sock2file(int socket){
 	system("sudo rm /tmp/tmp");
 	printDownloading();
-	cons_log("[PCast:sock2file] 소켓 내용을 파일로 저장합니다.");
+	cons_log("[PiNM:sock2file] 소켓 내용을 파일로 저장합니다.");
 	int count = 0;
 	int file = open("/tmp/tmp", O_WRONLY | O_CREAT, 0644);
-	cons_log("[PCast:sock2file] 내려받는 중입니다!");
+	cons_log("[PiNM:sock2file] 내려받는 중입니다!");
 	int totalBytes = 0;
 	while(true){
 		char buffer[1024*1024];
 		int recvBytes = recv(socket, buffer, 1024*1024, MSG_DONTWAIT);
 		if(recvBytes == 0){
-			cons_log("[PCast:sock2file] 연결 종료가 감지되었습니다. sock2file을 종료합니다.");
+			cons_log("[PiNM:sock2file] 연결 종료가 감지되었습니다. sock2file을 종료합니다.");
 			return false;
 		}else if(recvBytes == -1){
 			if(count == 5000){
@@ -208,7 +208,7 @@ bool sock2file(int socket){
 			writeMessage(0, img_height(2) * 2 + 10, status, 1);
 		}
 	}
-	cons_log("[PCast:sock2file] 수신이 완료되었습니다.");
+	cons_log("[PiNM:sock2file] 수신이 완료되었습니다.");
 	return true;
 }
 
@@ -263,12 +263,12 @@ int main(int argc, char **argv){
 	int fb_fd;
 	fb_fd = open(FBDEV, O_RDWR);
 	if(!fb_fd){
-		perror("[PCast] Framebuffer 열기 실패");
+		perror("[PiNM] Framebuffer 열기 실패");
 		exit(1);
 	}
 	fb_var_screeninfo fvsInfo;
 	if(ioctl(fb_fd, FBIOGET_VSCREENINFO, &fvsInfo)){
-		perror("[PCast] Framebuffer 크기를 알 수 없습니다.");
+		perror("[PiNM] Framebuffer 크기를 알 수 없습니다.");
 		exit(1);
 	}
 	width = fvsInfo.xres;
@@ -277,10 +277,10 @@ int main(int argc, char **argv){
 	basesize = (width + height) / 2 / 100;
 	display = (short *)mmap(0, scrsize, PROT_READ | PROT_WRITE, MAP_SHARED, fb_fd, 0);
 	if((int *)display == -1){
-		perror("[PCast] Framebuffer 메모리 할당 실패");
+		perror("[PiNM] Framebuffer 메모리 할당 실패");
 		exit(1);
 	}
-	cons_log("[PCast] Framebuffer 준비됨");
+	cons_log("[PiNM] Framebuffer 준비됨");
 	system("sudo killall dbus-daemon");
 	printStandBy(false);
 	//Socket setup
@@ -290,7 +290,7 @@ int main(int argc, char **argv){
 	state = 0;
 	client_len = sizeof(siClient);
 	if((server_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-		perror("[PCast] Socket 생성 실패");
+		perror("[PiNM] Socket 생성 실패");
 		exit(0);
 	}
 	linger lLinger;
@@ -302,51 +302,51 @@ int main(int argc, char **argv){
 	siServer.sin_port = htons(5520);
 	state = bind(server_sockfd , (struct sockaddr *)&siServer, sizeof(siServer));
 	if (state == -1){
-		perror("[PCast] Socket bind 실패");
+		perror("[PiNM] Socket bind 실패");
 		exit(0);
 	}
 	state = listen(server_sockfd, 5);
 	if (state == -1){
-		perror("[PCast] Socket listen 실패");
+		perror("[PiNM] Socket listen 실패");
 		exit(0);
 	}
 	while(1){
-		cons_log("[PCast] 소켓 접속 대기중");
+		cons_log("[PiNM] 소켓 접속 대기중");
 		client_sockfd = accept(server_sockfd, (struct sockaddr *)&siClient,
 							   &client_len);
 		if (client_sockfd == -1){
-			perror("[PCast] Socket accept 실패");
+			perror("[PiNM] Socket accept 실패");
 			exit(1);
 		}
 		if(setsockopt(client_sockfd, SOL_SOCKET, SO_REUSEADDR, &lLinger, sizeof(lLinger)) == -1){
-			perror("[PCast] Socket setsockopt 실패");
+			perror("[PiNM] Socket setsockopt 실패");
 			exit(1);
 		}
-		cons_log("[PCast] 접속됨");
+		cons_log("[PiNM] 접속됨");
 		printStandBy(true);
 		int avg;
 		int orgtime = time(NULL);
 		while(1){
-			cons_log("[PCast] 수신 대기중");
+			cons_log("[PiNM] 수신 대기중");
 			char datainfo[2];
 			int recvBytes = recv(client_sockfd, datainfo, 2, MSG_WAITALL);
 			if(recvBytes == 0 || recvBytes == -1) break;
 			else{
 				system("sudo killall omxplayer.bin");
-				cons_log("[PCast] 데이터 도착");
-				cons_log("[PCast] 기기에 전송");
+				cons_log("[PiNM] 데이터 도착");
+				cons_log("[PiNM] 기기에 전송");
 				write(client_sockfd, datainfo, 2);
-				cons_log("[PCast] *** 다운로드 모드 ***");
+				cons_log("[PiNM] *** 다운로드 모드 ***");
 				//*** Downloading mode ***
-				cons_log("[PCast] 파일을 다운로드 중입니다. 잠시만 기다려 주세요.");
+				cons_log("[PiNM] 파일을 다운로드 중입니다. 잠시만 기다려 주세요.");
 				bool status = sock2file(client_sockfd);
 				if(!status) break;
 				system("nohup omxplayer /tmp/tmp &");
-				cons_log("[PCast] 동영상 재생이 시작되었습니다.\n");
+				cons_log("[PiNM] 동영상 재생이 시작되었습니다.\n");
 				printStandBy(true);
 			}
 		}
-		cons_log("[PCast] 연결 끊어짐\n");
+		cons_log("[PiNM] 연결 끊어짐\n");
 		printStandBy(false);
 		close(client_sockfd);
 	}

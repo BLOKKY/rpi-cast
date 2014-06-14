@@ -23,8 +23,8 @@ using std::string;
 int scrsize, width, height;
 int basesize;
 
-#define CMD_GET_IP_ETH "/home/pi/scripts/ip.sh eth"
-#define CMD_GET_IP_WLN "/home/pi/scripts/ip.sh wlan"
+#define CMD_GET_IP_ETH "ip -d addr | grep eth0 | grep inet | awk '{print $2}' | cut -d / -f1"
+#define CMD_GET_IP_WLN "ip -d addr | grep wlan0 | grep inet | awk '{print $2}' | cut -d / -f1"
 
 //백분율 구하는 식
 #define getPercent(total, current) (current / total) * 100

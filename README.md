@@ -1,4 +1,4 @@
-Raspberry Pi Video Cast Project
+Raspberry Pi Video Cast Project - PiNM
 
 - How to build:
 

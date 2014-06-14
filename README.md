@@ -1,6 +1,6 @@
 Raspberry Pi Video Cast Project
 
-How to build:
+- How to build:
 
 git clone https://github.com/IS1/rpi-cast
 
@@ -10,7 +10,7 @@ make
 
 * Remember install path!
 
-How to run
+- How to run
 
 [Go to install path]
 
@@ -24,3 +24,12 @@ How to run
 
   do not print messages as possible.
 
+- Auto startup
+
+ sudo nano /etc/rc.local (You may use your favorite editor)
+
+ Add this line before 'fi'
+
+ [Install PATH]/pcast
+
+ [Install PATH] is your install path. For example, install path is '/home/pi/rpi-cast', then you should add '/home/pi/rpi-cast/pcast' before 'fi'

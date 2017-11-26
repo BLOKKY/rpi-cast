@@ -28,7 +28,7 @@ make
 
  sudo nano /etc/rc.local (You may use your favorite editor)
 
- Add this line before 'fi'
+ Add this line before 'exit 0'
 
  [Install PATH]/pcast
 
